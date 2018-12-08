@@ -1,0 +1,13 @@
+version: '3'
+services:
+  node-app:
+    environment:
+      - NODE_ENV=development
+    build: .
+    command: npm run dev
+    volumes:
+      - .:/home/node/app
+    ports:
+      - 3000:3000
+volumes:
+  modules:
