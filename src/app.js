@@ -1,6 +1,7 @@
 const express = require('express')
 const parser = require('xml2json')
 const feed = require('./api/skoytestasjon')
+const cors = require('cors')
 const app = express()
 
 const options = {
@@ -12,6 +13,8 @@ const options = {
   arrayNotation: false,
   alternateTextNode: 'value'
 }
+
+app.use(cors())
 
 app.get('/iphonefeed/:scope?', (req, res) => {
   feed('/iphonefeed').then(response => {
