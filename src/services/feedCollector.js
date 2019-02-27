@@ -1,5 +1,6 @@
 const feed = require('../api/skoytestasjon')
 const parser = require('xml2json')
+const imageUrlBase = 'https://www.redningsselskapet.no/content/uploads/2019/02'
 
 const options = {
   object: true,
@@ -11,44 +12,63 @@ const options = {
   alternateTextNode: 'value'
 }
 
-const getRescueboats = url => {
-  return feed(url)
-    .then(response => {
-      const data = parser.toJson(response.data, options)
-      return data.rescueboats.rescueboat
+const mergeRescueboatImageUrl = (rescueboats) => {
+  if (Array.isArray(rescueboats)) {
+    return rescueboats.map((rescueboat) => {
+      return { ...rescueboat, imageUrl: `${imageUrlBase}/RS${rescueboat.rs}.jpg` }
     })
-    .catch(err => {
+  } else {
+    return {...rescueboats, imageUrl: `${imageUrlBase}/RS${rescueboats.rs}.jpg`}
+  }
+}
+
+const getRescueboats = (url) => {
+  return feed(url)
+    .then((response) => {
+      const data = parser.toJson(response.data, options)
+      const rescueboats = data.rescueboats.rescueboat
+      return mergeRescueboatImageUrl(rescueboats)
+    })
+    .catch((err) => {
       console.log(err.message)
     })
 }
 
-const getStations = url => {
+const getStations = (url) => {
   return feed(url)
-    .then(response => {
+    .then((response) => {
       const data = parser.toJson(response.data, options)
-      return data.stations.station
+      const stations = data.stations.station
+      return stations.map((station) => {
+        const rescueboatsOnStation = station.rescueboat
+        if (station.rescueboat) {
+          station.rescueboat = mergeRescueboatImageUrl(rescueboatsOnStation)
+        }
+
+        return station
+      })
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err.message)
     })
 }
 
-const getIphoneFeed = url => {
+const getIphoneFeed = (url) => {
   return feed('/iphonefeed')
-    .then(response => {
+    .then((response) => {
       const data = parser.toJson(response.data, options)
       const Vessels = data.Markers.Vessel
       const Stations = data.Markers.Station
       return { Vessels, Stations }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err.message)
     })
 }
 
 const boatsCollector = {
   rescueboats: null,
-  start: async function(interval = 30000) {
+  start: async function (interval = 30000) {
     this.rescueboats = await getRescueboats('/getboatsxml')
     setInterval(async () => {
       this.rescueboats = await getRescueboats('/getboatsxml')
@@ -58,7 +78,7 @@ const boatsCollector = {
 
 const stationsCollector = {
   stations: null,
-  start: async function(interval = 30000) {
+  start: async function (interval = 30000) {
     this.stations = await getStations('/getstationsxml')
     setInterval(async () => {
       this.stations = await getStations('/getstationsxml')
@@ -68,7 +88,7 @@ const stationsCollector = {
 
 const iphoneCollector = {
   iphoneFeed: null,
-  start: async function(interval = 30000) {
+  start: async function (interval = 30000) {
     this.iphoneFeed = await getIphoneFeed('/iphone')
     setInterval(async () => {
       this.iphoneFeed = await getIphoneFeed('/iphone')
@@ -78,7 +98,7 @@ const iphoneCollector = {
 
 const historicalBoatsCollector = {
   rescueboats: null,
-  start: async function(interval = 30000) {
+  start: async function (interval = 30000) {
     this.rescueboats = await getRescueboats('/getboatsxml/alltime')
     setInterval(async () => {
       this.rescueboats = await getRescueboats('/getboatsxml/alltime')
