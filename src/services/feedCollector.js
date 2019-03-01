@@ -1,5 +1,6 @@
 const feed = require('../api/skoytestasjon')
 const parser = require('xml2json')
+const getHistorisk = require('../api/historisk')
 const imageUrlBase = 'https://www.redningsselskapet.no/content/uploads/2019/02'
 
 const options = {
@@ -18,7 +19,7 @@ const mergeRescueboatImageUrl = (rescueboats) => {
       return { ...rescueboat, imageUrl: `${imageUrlBase}/RS${rescueboat.rs}.jpg` }
     })
   } else {
-    return {...rescueboats, imageUrl: `${imageUrlBase}/RS${rescueboats.rs}.jpg`}
+    return { ...rescueboats, imageUrl: `${imageUrlBase}/RS${rescueboats.rs}.jpg` }
   }
 }
 
@@ -99,10 +100,34 @@ const iphoneCollector = {
 const historicalBoatsCollector = {
   rescueboats: null,
   start: async function (interval = 30000) {
-    this.rescueboats = await getRescueboats('/getboatsxml/alltime')
+    const historisk = await getHistorisk()
+    const rescueboats = await getRescueboats('/getboatsxml/alltime')
+    // console.log(historisk.rescueboats[0])
+    // console.log(rescueboats[0])
+
+    this.rescueboats = historisk.rescueboats.map((historicalRescueboat) => {
+      // normalize rs number
+      historicalRescueboat.rs = parseInt(historicalRescueboat.rs)
+      historicalRescueboat.state = {}
+      delete historicalRescueboat.files
+      delete historicalRescueboat.operations
+      delete historicalRescueboat.station
+      delete historicalRescueboat.videos
+      delete historicalRescueboat.technical_images
+      delete historicalRescueboat.action_images
+      delete historicalRescueboat.main_image
+      delete historicalRescueboat.inspector
+      historicalRescueboat.Distriktskontor = undefined
+      const rescueboat = rescueboats.find((boat) => parseInt(boat.rs) === historicalRescueboat.rs)
+      return { ...rescueboat, ...historicalRescueboat }
+    })
+
     setInterval(async () => {
-      this.rescueboats = await getRescueboats('/getboatsxml/alltime')
-    }, interval)
+      this.rescueboats = historisk.rescueboats.map((historicalRescueboat) => {
+        const rescueboat = rescueboats.find((boat) => parseInt(boat.rs) === historicalRescueboat.rs)
+        return { ...rescueboat, ...historicalRescueboat }
+      })
+    }, interval + 30000)
   }
 }
 
