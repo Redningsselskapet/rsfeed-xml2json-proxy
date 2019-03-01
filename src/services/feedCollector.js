@@ -102,9 +102,6 @@ const historicalBoatsCollector = {
   start: async function (interval = 30000) {
     const historisk = await getHistorisk()
     const rescueboats = await getRescueboats('/getboatsxml/alltime')
-    // console.log(historisk.rescueboats[0])
-    // console.log(rescueboats[0])
-
     this.rescueboats = historisk.rescueboats.map((historicalRescueboat) => {
       // normalize rs number
       historicalRescueboat.rs = parseInt(historicalRescueboat.rs).toString()
@@ -127,7 +124,7 @@ const historicalBoatsCollector = {
         const rescueboat = rescueboats.find((boat) => boat.rs === historicalRescueboat.rs)
         return { ...rescueboat, ...historicalRescueboat }
       })
-    }, interval + 30000)
+    }, interval + 30000) // Oppdateres mer sjeldent en øvrige tjenester
   }
 }
 
