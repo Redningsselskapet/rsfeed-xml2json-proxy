@@ -107,7 +107,7 @@ const historicalBoatsCollector = {
 
     this.rescueboats = historisk.rescueboats.map((historicalRescueboat) => {
       // normalize rs number
-      historicalRescueboat.rs = parseInt(historicalRescueboat.rs)
+      historicalRescueboat.rs = parseInt(historicalRescueboat.rs).toString()
       historicalRescueboat.state = {}
       delete historicalRescueboat.files
       delete historicalRescueboat.operations
@@ -118,13 +118,13 @@ const historicalBoatsCollector = {
       delete historicalRescueboat.main_image
       delete historicalRescueboat.inspector
       historicalRescueboat.Distriktskontor = undefined
-      const rescueboat = rescueboats.find((boat) => parseInt(boat.rs) === historicalRescueboat.rs)
+      const rescueboat = rescueboats.find((boat) => boat.rs === historicalRescueboat.rs)
       return { ...rescueboat, ...historicalRescueboat }
     })
 
     setInterval(async () => {
       this.rescueboats = historisk.rescueboats.map((historicalRescueboat) => {
-        const rescueboat = rescueboats.find((boat) => parseInt(boat.rs) === historicalRescueboat.rs)
+        const rescueboat = rescueboats.find((boat) => boat.rs === historicalRescueboat.rs)
         return { ...rescueboat, ...historicalRescueboat }
       })
     }, interval + 30000)
