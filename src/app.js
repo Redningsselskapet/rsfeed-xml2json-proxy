@@ -18,7 +18,7 @@ const options = {
 
 app.use(cors())
 
-/* app.get('/iphonefeed/:scope?', (req, res) => {
+app.get('/iphonefeed/:scope?', (req, res) => {
   feed('/iphonefeed')
     .then(response => {
       const data = parser.toJson(response.data, options)
@@ -54,7 +54,7 @@ app.get('/getstationsxml', (req, res) => {
     .catch(err => {
       console.log(err.message)
     })
-}) */
+})
 
 app.get('/prefetch/getboats', (req, res) => {
   res.json({ rescueboats: boatsCollector.rescueboats })
@@ -71,26 +71,6 @@ app.get('/prefetch/iphone', (req, res) => {
 app.get('/prefetch/getboats/alltime', (req, res) => {
   res.json({ rescueboats: historicalBoatsCollector.rescueboats })
 })
-
-// midlertidig routes
-
-app.get('/getboatsxml', (req, res) => {
-  res.json({ rescueboats: boatsCollector.rescueboats })
-})
-
-app.get('/getstationsxml', (req, res) => {
-  res.json({ stations: stationsCollector.stations })
-})
-
-app.get('/iphone', (req, res) => {
-  res.json({ iphoneFeed: iphoneCollector.iphoneFeed })
-})
-
-app.get('/getboatsxml/alltime', (req, res) => {
-  res.json({ rescueboats: historicalBoatsCollector.rescueboats })
-})
-
-// midlertidig routes end
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
