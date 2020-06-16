@@ -126,6 +126,7 @@ const historicalBoatsCollector = {
       })
     }, interval + 30000) // Oppdateres mer sjeldent en øvrige tjenester
   }
+  
 }
 
 // TODO: if error keep last collected. Add timestamp for collected feed.

@@ -72,6 +72,25 @@ app.get('/prefetch/getboats/alltime', (req, res) => {
   res.json({ rescueboats: historicalBoatsCollector.rescueboats })
 })
 
+app.get('/prefetch/getcode/:mmsi', (req, res) => {
+  const { mmsi } = req.params
+  if (!mmsi) {
+    res.status(400).json({
+      error: 'mmsi can not be empty'
+    })
+  }
+  const rescueboat = boatsCollector.rescueboats.filter(boat => boat.mmsi === mmsi)
+  if (rescueboat.length === 0) {
+    res.status(404).json({
+      error: 'Rescueboat not found'
+    })
+  }
+
+  res.json({
+    code: rescueboat[0].rs
+  })
+})
+
 const port = process.env.PORT || 3000
 app.listen(port, () => {
   boatsCollector.start(process.env.CollectBoatsInterval)
