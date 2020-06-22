@@ -2,6 +2,7 @@ const feed = require('../api/skoytestasjon')
 const parser = require('xml2json')
 const getHistorisk = require('../api/historisk')
 const imageUrlBase = 'https://www.redningsselskapet.no/content/uploads/2019/02'
+const statusFeed = require('../api/skoytestatus')
 
 const options = {
   object: true,
@@ -23,12 +24,31 @@ const mergeRescueboatImageUrl = (rescueboats) => {
   }
 }
 
+const mergeRescueboatsWithCorrectStates = (rescueboats, states) => {
+  states.map(state => {
+    const found = rescueboats.find(rescueboat => rescueboat.mmsi === state.MMSI)
+    if (found) {
+      state.SkoyteStatus.Merknad ? found.merknad=state.SkoyteStatus.Merknad : found.merknad = {}
+      found.state_description = state.SkoyteStatus.Navn
+      found.state = state.SkoyteStatus.DatavarehusId
+      found.aarsak = state.SkoyteStatusArsak.Navn
+      found.aarsak_id = state.SkoyteStatusArsak.MDSCode
+      return found.correctState=state
+    }
+  })
+  return rescueboats
+}
+
 const getRescueboats = (url) => {
   return feed(url)
     .then((response) => {
       const data = parser.toJson(response.data, options)
       const rescueboats = data.rescueboats.rescueboat
       return mergeRescueboatImageUrl(rescueboats)
+    }).then(rescueboats => {
+      return statusFeed().then(response => {
+        return mergeRescueboatsWithCorrectStates(rescueboats, response.data)
+      })
     })
     .catch((err) => {
       console.log(err.message)
