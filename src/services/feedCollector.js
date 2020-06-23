@@ -33,7 +33,7 @@ const mergeRescueboatsWithCorrectStates = (rescueboats, states) => {
       found.state = state.SkoyteStatus.DatavarehusId
       found.aarsak = state.SkoyteStatusArsak.Navn
       found.aarsak_id = state.SkoyteStatusArsak.MDSCode
-      return found.correctState=state
+      return found
     }
   })
   return rescueboats
