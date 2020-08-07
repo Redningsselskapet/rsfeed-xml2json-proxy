@@ -24,16 +24,11 @@ const mergeRescueboatImageUrl = (rescueboats) => {
   }
 }
 
-const mergeRescueboatsWithCorrectStates = (rescueboats, states) => {
+const mergeExtendedStates = (rescueboats, states) => {
   states.map(state => {
-    const found = rescueboats.find(rescueboat => rescueboat.mmsi === state.MMSI)
+    const found = rescueboats.find(rescueboat => rescueboat.rs == state.RsId)
     if (found) {
-      state.SkoyteStatus.Merknad ? found.merknad=state.SkoyteStatus.Merknad : found.merknad = {}
-      found.state_description = state.SkoyteStatus.Navn
-      found.state = state.SkoyteStatus.DatavarehusId
-      found.aarsak = state.SkoyteStatusArsak.Navn
-      found.aarsak_id = state.SkoyteStatusArsak.MDSCode
-      return found
+      found.extendedState = state
     }
   })
   return rescueboats
@@ -47,7 +42,7 @@ const getRescueboats = (url) => {
       return mergeRescueboatImageUrl(rescueboats)
     }).then(rescueboats => {
       return statusFeed().then(response => {
-        return mergeRescueboatsWithCorrectStates(rescueboats, response.data)
+        return mergeExtendedStates(rescueboats, response.data)
       })
     })
     .catch((err) => {
