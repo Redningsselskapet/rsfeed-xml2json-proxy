@@ -28,6 +28,7 @@ const mergeExtendedStates = (rescueboats, states) => {
   states.map(state => {
     const found = rescueboats.find(rescueboat => rescueboat.rs == state.RsId)
     if (found) {
+      delete state.RsId
       found.extendedState = state
     }
   })
