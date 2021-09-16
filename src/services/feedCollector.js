@@ -47,7 +47,7 @@ const getRescueboats = (url) => {
       })
     })
     .catch((err) => {
-      console.log(err.message)
+      console.log(url, err.message)
     })
 }
 
@@ -66,7 +66,7 @@ const getStations = (url) => {
       })
     })
     .catch((err) => {
-      console.log(err.message)
+      console.log(url, err.message)
     })
 }
 
@@ -79,7 +79,7 @@ const getIphoneFeed = (url) => {
       return { Vessels, Stations }
     })
     .catch((err) => {
-      console.log(err.message)
+      console.log(url, err.message)
     })
 }
 
